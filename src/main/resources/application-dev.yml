@@ -1,0 +1,26 @@
+# Local development. Matches compose.yaml (PostgreSQL + Redis on localhost).
+# Uses the mock SMS provider with the fixed OTP 123456 (same as the Flutter mock mode) and seeds demo data.
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/mygateapp}
+    username: ${DB_USERNAME:mygateapp}
+    password: ${DB_PASSWORD:mygateapp}
+
+app:
+  jwt:
+    # Development-only value. Production refuses to start without its own JWT_SECRET.
+    secret: ${JWT_SECRET:dev-only-jwt-secret-do-not-use-in-production-0001}
+  otp:
+    fixed-code: ${OTP_FIXED_CODE:123456}
+  sms:
+    provider: ${SMS_PROVIDER:mock}
+  push:
+    provider: ${PUSH_PROVIDER:log}
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:5173,http://localhost:5000,http://localhost:8081}
+  dev:
+    seed: ${DEV_SEED:true}
+
+logging:
+  level:
+    com.mygateapp: DEBUG

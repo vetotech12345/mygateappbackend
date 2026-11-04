@@ -1,0 +1,61 @@
+# Local development infrastructure: PostgreSQL + Redis.
+#   docker compose up -d                 # infrastructure only (run the app with ./mvnw spring-boot:run)
+#   docker compose --profile app up -d   # infrastructure + the backend container
+# If ports 5432/6379 are already used on your machine, set POSTGRES_HOST_PORT / REDIS_HOST_PORT (and DB_URL / REDIS_PORT).
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-mygateapp}
+      POSTGRES_USER: ${POSTGRES_USER:-mygateapp}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-mygateapp}
+    ports:
+      - "127.0.0.1:${POSTGRES_HOST_PORT:-5432}:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "127.0.0.1:${REDIS_HOST_PORT:-6379}:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  backend:
+    profiles: ["app"]
+    build: .
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-dev}
+      DB_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-mygateapp}
+      DB_USERNAME: ${POSTGRES_USER:-mygateapp}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-mygateapp}
+      REDIS_HOST: redis
+      FILE_STORAGE_DIR: /app/data/uploads
+    ports:
+      - "8080:8080"
+    volumes:
+      - uploads:/app/data/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+volumes:
+  postgres-data:
+  redis-data:
+  uploads:

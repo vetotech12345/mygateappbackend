@@ -1,0 +1,26 @@
+# Automated tests. Datasource and Redis come from Testcontainers (@ServiceConnection).
+app:
+  jwt:
+    secret: test-only-jwt-secret-for-automated-tests-000000001
+  otp:
+    fixed-code: "123456"
+    max-requests-per-mobile-per-hour: 1000
+    max-requests-per-ip-per-hour: 1000
+    resend-cooldown: PT0S
+  sms:
+    provider: mock
+  push:
+    provider: log
+  rate-limit:
+    enabled: false
+  files:
+    storage-dir: ${java.io.tmpdir}/mygateapp-test-uploads
+  jobs:
+    enabled: false
+  dev:
+    seed: false
+
+logging:
+  level:
+    com.mygateapp: INFO
+    org.testcontainers: WARN
