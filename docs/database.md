@@ -13,8 +13,9 @@ PostgreSQL (17 in development and tests; 13+ supported). The schema is owned by 
 | `V6__complaints_and_notices` | complaints, complaint_attachments, complaint_comments, complaint_status_history, notices, notice_audience_towers, notice_attachments, notice_read_receipts |
 | `V7__notifications_and_audit` | notifications, notification_outbox, user_devices, notification_preferences, audit_logs |
 | `V8__seed_roles_and_permissions` | role and permission reference data, default platform settings |
+| `V9__vehicles_and_parking` | society_parking_settings, vehicles, parking_areas, parking_slots, parking_rate_plans, parking_requests, parking_allocations, parking_permits, parking_verifications, parking_sessions, parking_movements, parking_quotes, parking_payments, parking_payment_events, parking_receipts; parking permissions; `VEHICLE_ENTRY` guard toggle. Design, ER diagram and migration notes: [PARKING_DATABASE_DESIGN.md](PARKING_DATABASE_DESIGN.md) |
 
-New changes always go into a new `V9__...` file; applied migrations are never edited.
+New changes always go into a new `V10__...` file; applied migrations are never edited.
 
 ## Entity relationship diagram
 

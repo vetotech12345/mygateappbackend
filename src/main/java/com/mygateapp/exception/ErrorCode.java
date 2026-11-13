@@ -128,7 +128,66 @@ public enum ErrorCode {
     // Files
     FILE_NOT_FOUND(HttpStatus.NOT_FOUND, "This file does not exist."),
     INVALID_FILE(HttpStatus.BAD_REQUEST, "The file is empty or not a valid image."),
-    FILE_LINK_INVALID(HttpStatus.FORBIDDEN, "This file link is invalid or has expired.");
+    FILE_LINK_INVALID(HttpStatus.FORBIDDEN, "This file link is invalid or has expired."),
+
+    // Vehicles
+    VEHICLE_NOT_FOUND(HttpStatus.NOT_FOUND, "This vehicle is not registered."),
+    INVALID_VEHICLE_NUMBER(HttpStatus.BAD_REQUEST, "Enter a valid vehicle number."),
+    VEHICLE_ALREADY_REGISTERED(HttpStatus.CONFLICT, "This vehicle number is already registered in the society."),
+    VEHICLE_LIMIT_REACHED(HttpStatus.UNPROCESSABLE_CONTENT, "Your flat has reached the maximum number of vehicles."),
+    VEHICLE_TYPE_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "This vehicle type is not allowed in the society."),
+    VEHICLE_NOT_SUBMITTABLE(HttpStatus.CONFLICT, "Only saved or rejected vehicles can be sent for approval."),
+    VEHICLE_NOT_PENDING(HttpStatus.CONFLICT, "This vehicle is not waiting for approval."),
+    VEHICLE_NOT_APPROVED(HttpStatus.CONFLICT, "This vehicle is not approved by the society office."),
+    VEHICLE_INACTIVE(HttpStatus.CONFLICT, "This vehicle is inactive."),
+
+    // Parking configuration and inventory
+    PARKING_FEATURE_DISABLED(HttpStatus.CONFLICT, "This parking feature is not enabled in your society."),
+    PARKING_AREA_NOT_FOUND(HttpStatus.NOT_FOUND, "This parking area does not exist."),
+    PARKING_AREA_TAKEN(HttpStatus.CONFLICT, "A parking area with this code or name already exists."),
+    PARKING_AREA_INACTIVE(HttpStatus.CONFLICT, "This parking area is not active."),
+    PARKING_SLOT_NOT_FOUND(HttpStatus.NOT_FOUND, "This parking slot does not exist."),
+    PARKING_SLOT_TAKEN(HttpStatus.CONFLICT, "A slot with this number already exists in the area."),
+    SLOT_OUT_OF_SERVICE(HttpStatus.CONFLICT, "This parking slot is out of service."),
+    SLOT_NOT_SUITABLE(HttpStatus.CONFLICT, "This slot is not meant for this vehicle or purpose."),
+    SLOT_OCCUPIED(HttpStatus.CONFLICT, "Another vehicle is parked in this slot."),
+    SLOT_RESERVED(HttpStatus.CONFLICT, "This slot is reserved for someone else."),
+    INVALID_PARKING_WINDOW(HttpStatus.BAD_REQUEST, "The parking time window is not valid."),
+
+    // Allocations, permits, requests
+    ALLOCATION_NOT_FOUND(HttpStatus.NOT_FOUND, "This parking allocation does not exist."),
+    ALLOCATION_CONFLICT(HttpStatus.CONFLICT, "The slot is already allocated for this period."),
+    ALLOCATION_NOT_ACTIVE(HttpStatus.CONFLICT, "This allocation is no longer active."),
+    PERMIT_NOT_FOUND(HttpStatus.NOT_FOUND, "This parking permit does not exist."),
+    PERMIT_NOT_ACTIVE(HttpStatus.CONFLICT, "This permit is no longer active."),
+    PARKING_REQUEST_NOT_FOUND(HttpStatus.NOT_FOUND, "This parking request does not exist."),
+    REQUEST_ALREADY_PENDING(HttpStatus.CONFLICT, "A similar request is already waiting for the society office."),
+    REQUEST_ALREADY_DECIDED(HttpStatus.CONFLICT, "This request has already been handled."),
+    REQUEST_NOT_CANCELLABLE(HttpStatus.CONFLICT, "Only pending requests can be cancelled."),
+    PARKING_UNAVAILABLE(HttpStatus.CONFLICT, "No suitable parking slot is free for this time."),
+
+    // Gate sessions
+    PARKING_SESSION_NOT_FOUND(HttpStatus.NOT_FOUND, "This parking session does not exist."),
+    SESSION_ALREADY_ACTIVE(HttpStatus.CONFLICT, "This vehicle is already inside."),
+    SESSION_ALREADY_CLOSED(HttpStatus.CONFLICT, "This parking session is already closed."),
+    VERIFICATION_EXPIRED(HttpStatus.CONFLICT, "This verification has expired or was already used. Verify the vehicle again."),
+    ENTRY_NOT_AUTHORIZED(HttpStatus.FORBIDDEN, "This vehicle is not authorised to enter."),
+    GATE_NOT_FOR_VEHICLES(HttpStatus.FORBIDDEN, "Vehicles cannot be recorded at this gate."),
+    PAYMENT_PENDING(HttpStatus.CONFLICT, "Parking charges are outstanding. Collect the payment before exit."),
+
+    // Rates, quotes, payments
+    RATE_NOT_FOUND(HttpStatus.NOT_FOUND, "This parking rate does not exist."),
+    RATE_CODE_TAKEN(HttpStatus.CONFLICT, "A rate with this code already exists."),
+    RATE_NOT_APPLICABLE(HttpStatus.CONFLICT, "This rate does not apply here."),
+    QUOTE_NOT_FOUND(HttpStatus.NOT_FOUND, "This charge estimate does not exist."),
+    QUOTE_EXPIRED(HttpStatus.CONFLICT, "The charge has changed or expired. Refresh it and try again."),
+    PAYMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "This payment does not exist."),
+    PAYMENT_AMOUNT_MISMATCH(HttpStatus.CONFLICT, "The amount does not match the outstanding charge."),
+    PAYMENT_METHOD_NOT_ACCEPTED(HttpStatus.BAD_REQUEST, "This payment method is not accepted here."),
+    PAYMENT_INVALID_STATE(HttpStatus.CONFLICT, "This payment cannot be changed in its current state."),
+    NOTHING_TO_PAY(HttpStatus.CONFLICT, "There is nothing outstanding to pay."),
+    ONLINE_PAYMENT_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, "Online payment is not available. Pay at the gate or the society office."),
+    RECEIPT_NOT_FOUND(HttpStatus.NOT_FOUND, "This receipt does not exist.");
 
     private final HttpStatus status;
     private final String defaultMessage;

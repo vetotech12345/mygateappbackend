@@ -7,7 +7,9 @@ package com.mygateapp.security;
 public enum GuardPermission {
     VISITOR_ENTRY(Permission.GATE_VISITOR_OPERATE),
     DELIVERY_ENTRY(Permission.GATE_DELIVERY_OPERATE),
-    STAFF_ATTENDANCE(Permission.GATE_STAFF_OPERATE);
+    STAFF_ATTENDANCE(Permission.GATE_STAFF_OPERATE),
+    /** Vehicle verification, parking entry / exit and gate payments (V9). Not granted to existing guards automatically. */
+    VEHICLE_ENTRY(Permission.GATE_VEHICLE_OPERATE);
 
     private final Permission rolePermission;
 

@@ -10,7 +10,9 @@ public enum NotificationType {
     DOMESTIC_HELP_ARRIVAL(false),
     COMPLAINT_UPDATE(false),
     ANNOUNCEMENT(false),
-    GENERAL(false);
+    GENERAL(false),
+    /** Vehicle registration, parking requests, visitor vehicles, sessions, permits and payments. */
+    PARKING_UPDATE(false);
 
     /** Mandatory types are always pushed: gate entry depends on them. */
     private final boolean mandatory;

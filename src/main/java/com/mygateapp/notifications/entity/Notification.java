@@ -19,7 +19,10 @@ import lombok.Setter;
 @Setter
 public class Notification extends IdentifiedEntity {
 
-    public enum ReferenceType { VISITOR, DELIVERY, STAFF, COMPLAINT, NOTICE }
+    public enum ReferenceType {
+        VISITOR, DELIVERY, STAFF, COMPLAINT, NOTICE,
+        VEHICLE, PARKING_REQUEST, PARKING_ALLOCATION, PARKING_PERMIT, PARKING_SESSION, PARKING_PAYMENT
+    }
 
     @Column(name = "user_id", nullable = false)
     private UUID userId;

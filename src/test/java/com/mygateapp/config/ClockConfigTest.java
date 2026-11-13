@@ -35,6 +35,8 @@ class ClockConfigTest {
         Clock zoned = clock.withZone(ZoneId.of("Asia/Kolkata"));
         assertThat(zoned.getZone()).isEqualTo(ZoneId.of("Asia/Kolkata"));
         assertThatCode(zoned::millis).doesNotThrowAnyException();
-        assertThat(zoned.instant()).isEqualTo(zoned.instant().truncatedTo(ChronoUnit.MICROS));
+        // Read once: two reads could straddle a microsecond tick.
+        Instant now = zoned.instant();
+        assertThat(now).isEqualTo(now.truncatedTo(ChronoUnit.MICROS));
     }
 }

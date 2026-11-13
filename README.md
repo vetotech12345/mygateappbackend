@@ -7,8 +7,8 @@ React society-admin dashboard. Multi-society, PostgreSQL, Redis, JWT + refresh t
 | --- | --- |
 | Stack | Java 21 · Spring Boot 4.1.2 · Spring Security 7 (OAuth2 resource server, HS256 JWT) · Spring Data JPA / Hibernate 7 · Flyway · PostgreSQL 17 · Redis 7 · springdoc-openapi 3 · Firebase Admin SDK 9 |
 | Architecture | Modular monolith, package per feature (`com.mygateapp.<module>`) — see [docs/architecture.md](docs/architecture.md) |
-| Database | 43 tables, 8 Flyway migrations — see [docs/database.md](docs/database.md) |
-| API | 96 paths under `/api/v1` — see [docs/api-contracts.md](docs/api-contracts.md) and Swagger UI |
+| Database | 58 tables, 9 Flyway migrations — see [docs/database.md](docs/database.md) and [docs/PARKING_DATABASE_DESIGN.md](docs/PARKING_DATABASE_DESIGN.md) |
+| API | Phase 1: 96 paths under `/api/v1` — see [docs/api-contracts.md](docs/api-contracts.md); vehicles & parking: [docs/PARKING_API_CONTRACTS.md](docs/PARKING_API_CONTRACTS.md); Swagger UI for both |
 | Flutter contract | [FLUTTER_BACKEND_API_MAPPING.md](FLUTTER_BACKEND_API_MAPPING.md) |
 
 ## Status
@@ -16,7 +16,8 @@ React society-admin dashboard. Multi-society, PostgreSQL, Redis, JWT + refresh t
 | Area | State |
 | --- | --- |
 | All 12 Phase 1 modules (auth, societies, structure, residents, guards/gates, visitors, deliveries, domestic staff, complaints, notices, notifications, reports/audit) | Implemented and covered by automated tests |
-| Automated tests | **117 tests** (JUnit 5, Mockito, Spring Boot Test, Testcontainers PostgreSQL + Redis) — all passing |
+| Vehicles & parking (V9): society parking settings, vehicle registry and approval, areas, slots, allocations, permits, resident and visitor parking requests, gate verification / entry / exit, pricing, quotes, manual and gate payments, receipts, refunds, waivers, reports, notifications, jobs | Implemented and covered by automated tests. **Online payments are not available** (no provider; interface only). Flutter / React parking integration **not tested end to end** — see [docs/FLUTTER_PARKING_API_MAPPING.md](docs/FLUTTER_PARKING_API_MAPPING.md) and [docs/REACT_ADMIN_PARKING_API_MAPPING.md](docs/REACT_ADMIN_PARKING_API_MAPPING.md) |
+| Automated tests | **171 tests** (JUnit 5, Mockito, Spring Boot Test, Testcontainers PostgreSQL + Redis) — all passing |
 | Local run | Verified with `mvnw spring-boot:run` and with the Docker image (`docker compose --profile app`): migrations, Redis, demo data and a 26-step live smoke test against the running server |
 | SMS (OTP) | Mock provider (dev) works. Twilio provider implemented but **not tested against the live Twilio API** |
 | Push (FCM) | Outbox, retries and token cleanup tested with the log provider; Firebase SDK initialisation tested with a generated key. **Real delivery not tested** (needs a Firebase project and device) |
@@ -122,7 +123,12 @@ run downloads the images. No test touches a shared or production database.
 | `NotificationIT`, `NotificationDispatcherTest`, `FirebasePushSenderTest` | In-app notifications, preferences, devices, push outbox outcomes, Firebase SDK initialisation |
 | `DashboardsAndReportsIT` | Resident / guard / admin dashboards, activity feeds, reports, audit log |
 | `CrossSocietyIsolationIT` | Users of society B cannot read or change any record of society A by id, list or header |
-| Unit tests | Gate movement rules, complaint transitions, mobile normalisation, file sniffing, flat numbering, production safety, production clock |
+| `VehicleRegistrationIT` | Vehicle registration, number validation, duplicates, per-flat limit, submit/approve/reject/suspend, re-approval after a number change (slot and permits suspended), resident scoping |
+| `ParkingInventoryIT` | Society parking settings and isolation, `/societies/my`, areas and slots, slot state dimensions, overlapping and **concurrent** allocations, the database exclusion constraint, transfer/cancel, availability |
+| `ParkingGateIT` | Resident, society and visitor vehicle entry/exit, permit requirement, single-use verifications, **concurrent duplicate entry**, idempotent retries, visitor-approval integration, guard toggle and duty, emergency override, overstay job, retention of visitor data, cross-society gate isolation |
+| `ParkingPaymentIT` | Paid sessions, server quotes, payment before exit, gate and office payments, receipts, stale quotes and client amounts rejected, payment history immutability, refunds, waivers, paid monthly permits, reports |
+| `ParkingMigrationIT` | Upgrade path: a V8 database with Phase 1 data migrates to V9 with data intact and the new constraints enforced |
+| Unit tests | Gate movement rules, complaint transitions, mobile normalisation, file sniffing, flat numbering, production safety, production clock, **parking pricing** (grace, free minutes, daily cap, overstay, tax rounding), vehicle number formats |
 
 ## Docker
 
@@ -190,8 +196,12 @@ src/main/java/com/mygateapp/
 ├── audit/           audit log
 ├── files/           uploads and signed URLs
 ├── maintenance/     expiry and retention jobs
+├── vehicle/         vehicle registry, number validation, approval workflow
+├── parking/         parking settings, areas, slots, allocations, permits, requests, gate sessions, jobs
+├── parkingpayment/  rate plans, pricing calculator, quotes, payments, receipts
+├── parkingreport/   parking reports
 └── dev/             demo data seeder (dev profile only)
-src/main/resources/db/migration/   Flyway migrations V1–V8
+src/main/resources/db/migration/   Flyway migrations V1–V9
 ```
 
 ## Known limitations / next steps
@@ -202,3 +212,11 @@ src/main/resources/db/migration/   Flyway migrations V1–V8
 - Self-registration of residents is not in Phase 1: residents are created by admins or requested by a flat owner.
 - `X-Society-Id` lets multi-society users pick a society; the Flutter app does not send it yet (single-society users
   need nothing).
+- Parking: online payments are not operational (no provider selected; `OnlinePaymentGateway` is a disabled
+  interface). Cash / UPI / card at the gate and office payments (incl. bank transfer) work.
+- Parking: guards created before V9 do not have the `VEHICLE_ENTRY` toggle; grant it with `PUT /guards/{id}`. The
+  React admin knows only three guard toggles: the Edit guard form of a guard that has `VEHICLE_ENTRY` fails its
+  validation and cannot be saved, and guards created from React never get `VEHICLE_ENTRY` — see
+  [docs/REACT_ADMIN_PARKING_API_MAPPING.md](docs/REACT_ADMIN_PARKING_API_MAPPING.md).
+- Parking: V9 needs the PostgreSQL extension `btree_gist` (trusted since PostgreSQL 13; created by the migration).
+- Parking: the dev seeder does not create parking demo data yet; create areas, slots and rates through the admin API.

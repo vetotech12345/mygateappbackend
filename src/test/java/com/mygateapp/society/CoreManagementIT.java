@@ -48,7 +48,8 @@ class CoreManagementIT extends IntegrationTest {
                 .andExpect(jsonPath("$.guard.gate.name").value("Main Gate"))
                 .andExpect(jsonPath("$.guard.shift").value("Day shift · 08:00 – 20:00"))
                 .andExpect(jsonPath("$.guard.onDuty").value(true))
-                .andExpect(jsonPath("$.guard.permissions.length()").value(3));
+                // New guards default to all gate toggles; V9 added VEHICLE_ENTRY to the original three.
+                .andExpect(jsonPath("$.guard.permissions.length()").value(4));
         // The stored wall-clock time must not depend on the JVM's time zone (the container runs in UTC).
         assertThat(jdbc.queryForObject("SELECT shift_start::text || '-' || shift_end::text FROM guard_assignments "
                 + "WHERE guard_id = ? AND active", String.class, world.guardId())).isEqualTo("08:00:00-20:00:00");

@@ -27,16 +27,18 @@ class ApplicationStartupIT extends IntegrationTest {
     @Test
     void allMigrationsApplied() {
         MigrationInfo[] applied = flyway.info().applied();
-        assertThat(applied).hasSizeGreaterThanOrEqualTo(8);
+        assertThat(applied).hasSizeGreaterThanOrEqualTo(9);
         assertThat(flyway.info().pending()).isEmpty();
+        // V8: 5 gate permissions; V9 adds PARKING_VIEW and GATE_VEHICLE_OPERATE.
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM role_permissions WHERE role_code = 'GUARD'", Integer.class))
-                .isEqualTo(5);
+                .isEqualTo(7);
     }
 
     @Test
     void historyTablesAreImmutable() {
+        // V4/V6/V7: visitor, delivery, complaint history and audit log; V9: parking movements, payment events, receipts.
         assertThat(jdbc.queryForObject(
-                "SELECT COUNT(*) FROM pg_trigger WHERE tgname LIKE 'trg_%_immutable'", Integer.class)).isEqualTo(4);
+                "SELECT COUNT(*) FROM pg_trigger WHERE tgname LIKE 'trg_%_immutable'", Integer.class)).isEqualTo(7);
     }
 
     @Test
